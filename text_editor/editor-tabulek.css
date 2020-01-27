@@ -8,7 +8,7 @@ table, table td {
     margin: 0;
 }
 table td {
-    border: 1px solid black;
+    border: 1px solid black; /*border color menim ve skriptu ve vytvorBunku*/
 }
 table td input {
     padding:0;

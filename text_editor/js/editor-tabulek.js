@@ -1,14 +1,47 @@
 let table; // udrzuje tabulku
-let tabXSize = 5;
-let tabYSize = 3;
+let tabColumnsCount = 5;
+let tabRowsCount = 3;
+
+let aktivniBunka; // pristup k prave aktivni bunce "input"
+
+window.onload = function () {
+    let createDefaultTableBtn = document.getElementById("createDefaultTable");
+    createDefaultTableBtn.onclick = function (){
+        vytvorVychoziTabulku();
+    };
+    vytvorTlacitka();
+};
+
+function vytvorBunku() {
+    let td = document.createElement("td");
+    let tdInput = document.createElement("input");
+
+    tdInput.type = "text";
+    tdInput.onfocus = function () {
+        aktivniBunka = this; // v this je reference na objekt, ktery vyvoval udalost
+        // zvyrazneni aktivni bunky
+        aktivniBunka.parentElement.style.border = "2px solid";
+        aktivniBunka.parentElement.style.borderColor = "#FF00FF";
+    };
+    tdInput.onblur = function(){
+        // zNEvyrazneni aktivni bunky
+        aktivniBunka.parentElement.style.border = "1px solid";
+        aktivniBunka.parentElement.style.borderColor = "black";
+    };
+    /*    tdInput.onmouseleave = function(){
+            tdInput.style.backgroundColor = "black"; // vymalovava pri prejizdeni td-inputy (bunky)
+        };*/
+    td.appendChild(tdInput);
+    return td;
+}
 
 function vytvorVychoziTabulku() {
     table = document.createElement("table");
     document.body.appendChild(table);
-    for (let r = 0; r < tabYSize; r++) {
+    for (let r = 0; r < tabRowsCount; r++) {
         let tableRow = document.createElement("tr");
         table.appendChild(tableRow);
-        for (let c = 0; c < tabXSize; c++) {
+        for (let c = 0; c < tabColumnsCount; c++) {
             tableRow.appendChild(vytvorBunku());
         }
     }
@@ -17,93 +50,50 @@ function vytvorVychoziTabulku() {
     btn.onclick = null;
 }
 
-let aktivniBunka; // pristup k prave aktivni bunce "input"
-
-function vytvorBunku() {
-    let td = document.createElement("td");
-
-    let tdInput = document.createElement("input");
-
-    tdInput.type = "text";
-    tdInput.onfocus = function () {
-        aktivniBunka = this; // v this je reference na objekt, ktery vyvoval udalost
-    };
-/*    tdInput.onmouseleave = function(){
-        tdInput.style.backgroundColor = "black"; // vymalovava pri prejizdeni td-inputy (bunky)
-    };*/
-    td.appendChild(tdInput);
-
-    return td;
-}
-/*function vytvorBunku() {
-    let td = document.createElement("td");
-
-    let p = document.createElement("p");
-    p.textContent = "x";
-
-    td.appendChild(p);
-    return td;
-}*/
-
-window.onload = function () {
-    let createDefaultTableBtn = document.getElementById("createDefaultTable");
-    createDefaultTableBtn.onclick = function (){
-        vytvorVychoziTabulku();
-    };
-
-    vytvorTlacitka();
-};
-
 function vytvorTlacitkoAVlozHo(popisek, rodic){
     let tlacitko = document.createElement("button");
     tlacitko.textContent = popisek;
-    //tlacitko.innerText = popisek; // pro IE8 ?
-    //tlacitko.innerHTML = popisek; // jen, pokud chci vkladat html, ne pro plain text
     rodic.appendChild(tlacitko);
     return tlacitko;
 }
 
 function vytvorTlacitka() {
-    vytvorTlacitkoAVlozHo("Přidat řádek dolů", document.body).onclick = function (){pridatRadekDolu();};
-    vytvorTlacitkoAVlozHo("Přidat řádek nahoru", document.body).onclick = function () {pridatRadekNahoru();};
-    vytvorTlacitkoAVlozHo("Přidat sloupec vlevo", document.body).onclick = function () {pridatSloupecVlevo();};
-    vytvorTlacitkoAVlozHo("Přidat sloupec vpravo", document.body).onclick = function () {pridatSloupecVpravo();};
-    vytvorTlacitkoAVlozHo("Odstranit řádek", document.body);
-    vytvorTlacitkoAVlozHo("Odstranit sloupec", document.body);
+    vytvorTlacitkoAVlozHo("Přidat řádek dolů", document.body).onclick = pridatRadekDolu;
+    vytvorTlacitkoAVlozHo("Přidat řádek nahoru", document.body).onclick = pridatRadekNahoru;
+    vytvorTlacitkoAVlozHo("Přidat sloupec vlevo", document.body).onclick = pridatSloupecVlevo;
+    vytvorTlacitkoAVlozHo("Přidat sloupec vpravo", document.body).onclick = pridatSloupecVpravo;
+    vytvorTlacitkoAVlozHo("Odstranit řádek", document.body).onclick = odstranitVybranyRadek;
+    vytvorTlacitkoAVlozHo("Odstranit sloupec", document.body).onclick = odstranitVybranySloupec;
 
-    vytvorTlacitkoAVlozHo("Přidej řádek nad vybranou buňku", document.body).onclick = function () {pridejRadekNadAktivniBunku();};
-    vytvorTlacitkoAVlozHo("Přidej řádek pod vybranou buňku", document.body).onclick = function () {pridejRadekPodAktivniBunku();};
+    vytvorTlacitkoAVlozHo("Přidej řádek nad vybranou buňku", document.body).onclick = pridejRadekNadAktivniBunku;
+    vytvorTlacitkoAVlozHo("Přidej řádek pod vybranou buňku", document.body).onclick = pridejRadekPodAktivniBunku;
+}
+
+function vytvorRadek(borderColor) {
+    let tableRow = document.createElement("tr");
+
+    let pocetSloupcuVRadku = table.firstElementChild.childNodes.length;
+
+    for (let i = 0; i < pocetSloupcuVRadku; i++){
+        let cell = vytvorBunku();
+        cell.style.borderColor = borderColor;
+        tableRow.appendChild(cell);
+    }
+    return tableRow;
 }
 
 function pridatRadekDolu() {
-    let tableRow = document.createElement("tr");
-
-    table.appendChild(tableRow);
-    tabYSize++;
-
-    for (let i = 0; i < tabXSize; i++){
-        let cell = vytvorBunku();
-        cell.style.borderColor = "blue";
-        tableRow.appendChild(cell);
-    }
+    table.appendChild(vytvorRadek("blue"));
 }
+
 function pridatRadekNahoru() {
-    let tableRow = document.createElement("tr");
-
-    table.insertBefore(tableRow, table.firstChild);
-    tabYSize++;
-
-    for (let i = 0; i < tabXSize; i++){
-        let cell = vytvorBunku();
-        cell.style.borderColor = "red";
-        tableRow.appendChild(cell);
-    }
+    table.insertBefore(vytvorRadek("red"), table.firstChild);
 }
 
 function indexRadkuAktivniBunky() {
-    let cilHledani = table.childNodes;
+    let seznamRadkuKProhledani = table.childNodes;
     let hledanyPrvek = aktivniBunka.parentElement.parentElement;
-    return Array.prototype.indexOf.call(cilHledani, hledanyPrvek);
+    return Array.prototype.indexOf.call(seznamRadkuKProhledani, hledanyPrvek);
 }
 
 function indexSloupceAktivniBunky() {
@@ -114,55 +104,66 @@ function indexSloupceAktivniBunky() {
 
 function pridejRadekNadAktivniBunku() {
     let r = indexRadkuAktivniBunky();
-    let row = document.createElement("tr");
-    for(let i = 0; i < tabXSize; i++){
-        let cell = vytvorBunku();
-        cell.style.borderColor = "lightgreen";
-        row.appendChild(cell);
-    }
-    table.insertBefore(row, table.childNodes[r]);
-    tabYSize++;
+    table.insertBefore(vytvorRadek("lightgreen"), table.childNodes[r]);
 }
 
 function pridejRadekPodAktivniBunku() {
     let r = indexRadkuAktivniBunky();
-    let row = document.createElement("tr");
-    for(let i = 0; i < tabXSize; i++){
-        let cell = vytvorBunku();
-        cell.style.borderColor = "purple";
-        row.appendChild(cell);
-    }
-/*    if(r+1> table.childNodes.length){
-        table.appendChild(row);
-    }*/
+    let row = vytvorRadek("purple");
+
     if (table.lastChild === table.childNodes[r]){
         table.appendChild(row);
     }
     else{
         table.insertBefore(row, table.childNodes[r+1]);
     }
-    tabYSize++;
 }
 
 function pridatSloupecVlevo() {
     let s = indexSloupceAktivniBunky();
-
-    for(let i = 0; i < tabYSize; i++){
-        table.childNodes[i].insertBefore(vytvorBunku(), table.childNodes[i].childNodes[s]);
+    let pocetRadku = table.childNodes.length;
+    let makeCell = vytvorBunku;
+    for(let i = 0; i < pocetRadku; i++){
+        table.childNodes[i].insertBefore(makeCell(), table.childNodes[i].childNodes[s]);
     }
-    tabXSize++;
 }
 
 function pridatSloupecVpravo() {
     let s = indexSloupceAktivniBunky();
+    let pocetRadku = table.childNodes.length;
+    //let newCell = vytvorBunku(); // nemuzu pouzivat newCell, protoze pak v cyklu vsude pripinam jednu instanci bunky...
+    // a to jaksi nefunguje, potrebuju vzdy vytvorit instanci novou.
+    let newCell = function () {
+        return vytvorBunku(); // takto uz to jde. V podstate tim docilim jen toho, ze resim tvorbu bunky z jednoho mista...
+    };
 
-    for(let i = 0; i < tabYSize; i++){
-        if(table.childNodes[i].childNodes[s] == table.childNodes[i].lastChild){
-            table.childNodes[i].appendChild(vytvorBunku());
+    for(let i = 0; i < pocetRadku; i++){
+        if(table.childNodes[i].childNodes[s] === table.childNodes[i].lastChild){
+            table.childNodes[i].appendChild(newCell());
         }
         else{
-            table.childNodes[i].insertBefore(vytvorBunku(), table.childNodes[i].childNodes[s+1]);
+            table.childNodes[i].insertBefore(newCell(), table.childNodes[i].childNodes[s+1]);
         }
     }
-    tabXSize++; //todo odstranit
+}
+
+function odstranitVybranyRadek() {
+    if (table.childNodes.length <= 1) {
+        return; // v tabulce zustane nejmene jeden radek, jinak tabulka nevratne zanikne
+    }
+    let r = indexRadkuAktivniBunky();
+    table.childNodes[r].remove();
+    //table.removeChild(table.childNodes[r]); // alternativa?
+}
+
+function odstranitVybranySloupec() {
+    let pocetSloupcu = table.firstChild.childNodes.length; // table.prvniRadek.poleSloupcu.pocetSloupcu
+    if (pocetSloupcu <= 1) {
+        return; // v tabulce zustane nejmene jeden sloupec, jinak tabulka nevratne zanikne
+    }
+    let s = indexSloupceAktivniBunky();
+    let pocetRadku = table.childNodes.length;
+    for (let i = 0; i < pocetRadku; i++) {
+        table.childNodes[i].childNodes[s].remove();
+    }
 }
